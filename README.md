@@ -6,7 +6,7 @@ EgressLatch 是一个面向 Windows 的 Claude 启动门禁和运行监控工具
 
 该项目基于 [IP Guard v0.15.12](https://github.com/chxcodepro/claude-guard)，采用 [GPL‑3.0](LICENSE)。Claude 的使用资格以 [Anthropic 支持地区政策](https://www.anthropic.com/legal/supported-regions)为准。
 
-**[下载与运行要求](#windows-下载与运行要求)** · [快速开始](#快速开始) · [Claude 网页防护](#claude-网页防护) · [开发构建](#开发构建) · [发布流程](#发布流程)
+**[下载 Windows x64 安装包](https://github.com/333338/egress-latch/releases/download/v0.15.13/EgressLatch-Setup-0.15.13.exe)** · [v0.15.13 预发布说明与校验文件](https://github.com/333338/egress-latch/releases/tag/v0.15.13) · [运行要求](#windows-下载与运行要求) · [快速开始](#快速开始)
 
 ## 功能特性
 
@@ -49,7 +49,7 @@ Linux / macOS 预览包使用手动更新，从 Releases 下载后替换。Linux
 
 ## Windows 下载与运行要求
 
-从当前 EgressLatch 仓库的 GitHub Releases 获取安装文件。
+从 [EgressLatch 的 GitHub Releases](https://github.com/333338/egress-latch/releases) 获取安装文件。
 
 | 文件                             | 用途                                        |
 | -------------------------------- | ------------------------------------------- |
