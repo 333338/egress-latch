@@ -5,7 +5,7 @@ import "./style.css";
 const app = document.getElementById("app");
 if (!app) throw new Error("Missing page root");
 const blocked = document.body.dataset.view === "blocked";
-app.innerHTML = `<header><span class="brand">IP Guard <small>CLAUDE 防护</small></span><div class="header-actions"><button id="ip-visibility" class="quiet" aria-label="显示 IP 地址" title="显示 IP 地址" aria-pressed="false"></button><button id="theme" class="quiet" aria-label="切换深浅主题">◐</button></div></header>
+app.innerHTML = `<header><span class="brand">EgressLatch <small>CLAUDE 防护</small></span><div class="header-actions"><button id="ip-visibility" class="quiet" aria-label="显示 IP 地址" title="显示 IP 地址" aria-pressed="false"></button><button id="theme" class="quiet" aria-label="切换深浅主题">◐</button></div></header>
 <section id="extension-update" class="extension-update" hidden aria-live="polite"><strong id="update-version"></strong><a id="update-download" target="_blank" rel="noopener">下载插件</a><p>更新扩展文件后，在扩展管理页点击<span>「重新加载」</span>。</p></section>
 <div class="scene"><svg class="shield" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M24 6 39 12v12c0 9-7 15-15 18C16 39 9 33 9 24V12Z"/><path class="tick" d="m17 24 5 5 10-11"/></svg></div>
 <h1 id="status" role="status">连接中</h1><p id="reason"></p>
@@ -64,7 +64,9 @@ async function render() {
   const phase = fresh && state ? state.phase : "offline";
   const installedVersion = chrome.runtime.getManifest().version;
   const latestVersion = state?.latestExtensionVersion ?? state?.appVersion ?? "";
-  const updateAvailable = isNewerExtensionVersion(latestVersion, installedVersion);
+  const repository = import.meta.env.VITE_RELEASE_REPOSITORY;
+  const updateAvailable =
+    Boolean(repository) && isNewerExtensionVersion(latestVersion, installedVersion);
   document.body.dataset.update = String(updateAvailable);
   element("extension-update").hidden = !updateAvailable;
   const updateLabel = updateAvailable ? `插件有更新 v${latestVersion}` : "";
@@ -73,7 +75,7 @@ async function render() {
   if (updateAvailable)
     element("update-download").setAttribute(
       "href",
-      `https://github.com/chxcodepro/ip-guard/releases/download/v${latestVersion}/IP-Guard-Browser-${latestVersion}.zip`,
+      `https://github.com/${repository}/releases/download/v${latestVersion}/EgressLatch-Browser-${latestVersion}.zip`,
     );
   permitted = phase === "allowed";
   document.body.dataset.phase = phase;
@@ -83,7 +85,7 @@ async function render() {
       ? "正在检测"
       : "访问已阻断";
   element("reason").textContent = formatIPText(
-    fresh && state ? state.reason : "请运行 IP Guard 并准备浏览器扩展",
+    fresh && state ? state.reason : "请运行 EgressLatch 并准备浏览器扩展",
     ipsVisible,
   );
   element("current").textContent = formatIPText(state?.currentIp || "—", ipsVisible);

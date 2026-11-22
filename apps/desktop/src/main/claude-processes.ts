@@ -61,7 +61,7 @@ function state(value: ProcessSnapshot): ClaudeState {
     count: value.processes.length,
     canStop: running && !value.selfInTree,
     message: value.selfInTree
-      ? "请从 Windows 快捷方式打开 IP Guard 后停止 Claude"
+      ? "请从 Windows 快捷方式打开 EgressLatch 后停止 Claude"
       : value.unknown
         ? "部分进程信息读取失败"
         : "",
@@ -86,7 +86,7 @@ export function claudeStatus(): Promise<ClaudeState> {
 }
 export async function stopClaudeTrees(): Promise<ClaudeState> {
   const before = await snapshot();
-  if (before.selfInTree) throw new Error("请从 Windows 快捷方式打开 IP Guard 后停止 Claude");
+  if (before.selfInTree) throw new Error("请从 Windows 快捷方式打开 EgressLatch 后停止 Claude");
   const ids = new Set(before.processes.map((item) => item.pid));
   const roots = before.processes.filter((item) => !ids.has(item.parent));
   await Promise.allSettled(

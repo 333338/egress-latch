@@ -37,16 +37,16 @@ export class ApplicationUpdates extends EventEmitter<{ update: [UpdateState] }> 
     if (this.started) return;
     this.started = true;
     const info = path.join(process.resourcesPath, "release-info.json");
-    if (
-      !app.isPackaged ||
-      !existsSync(info) ||
-      !existsSync(path.join(process.resourcesPath, "app-update.yml"))
-    )
-      return;
+    if (!app.isPackaged || !existsSync(info)) return;
     try {
       const data: unknown = JSON.parse(readFileSync(info, "utf8"));
-      const repository = z.object({ repository: repositorySchema }).parse(data).repository;
-      this.state = { ...this.state, phase: "idle", repository, message: "" };
+      const repository = z
+        .object({ repository: z.union([z.literal(""), repositorySchema]) })
+        .parse(data).repository;
+      if (!repository) return;
+      this.state = { ...this.state, repository };
+      if (!existsSync(path.join(process.resourcesPath, "app-update.yml"))) return;
+      this.state = { ...this.state, phase: "idle", message: "" };
     } catch (error) {
       this.state.message =
         error instanceof Error ? `更新源配置无效：${error.message}` : "更新源配置无效";
@@ -177,8 +177,8 @@ export class ApplicationUpdates extends EventEmitter<{ update: [UpdateState] }> 
     const answer = await dialog.showMessageBox({
       type: "warning",
       title: "安装更新",
-      message: `安装 IP Guard ${this.state.latestVersion}？`,
-      detail: "将退出 IP Guard 并结束受保护程序，更新后重新校验。",
+      message: `安装 EgressLatch ${this.state.latestVersion}？`,
+      detail: "将退出 EgressLatch 并结束受保护程序，更新后重新校验。",
       buttons: ["取消", "安装并重启"],
       defaultId: 0,
       cancelId: 0,

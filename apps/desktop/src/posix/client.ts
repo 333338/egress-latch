@@ -13,7 +13,7 @@ const request = launchRequestSchema.parse({
   cwd: process.cwd(),
   args: extra[0] === "--" ? extra.slice(1) : extra,
 });
-if (!socketPath) throw new Error("IP Guard 启动入口缺少通信路径");
+if (!socketPath) throw new Error("EgressLatch 启动入口缺少通信路径");
 const connection = createConnection(socketPath);
 let child: ReturnType<typeof spawn> | undefined,
   finished = false,
@@ -49,7 +49,7 @@ connection.once(
 );
 connection.on("error", () => {
   leaseLost = true;
-  console.error("IP Guard 尚未运行，请先打开桌面程序。");
+  console.error("EgressLatch 尚未运行，请先打开桌面程序。");
   process.exitCode = 1;
   stop();
 });

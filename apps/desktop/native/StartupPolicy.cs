@@ -60,7 +60,7 @@ namespace IpGuard {
                     cached=null;return;
                 }
                 if(String.IsNullOrEmpty(executable) || !Path.IsPathRooted(executable) || !File.Exists(executable) || !String.Equals(Path.GetExtension(executable),".exe",StringComparison.OrdinalIgnoreCase)) throw new Exception("开机启动需要已安装的桌面程序。");
-                dynamic task=service.NewTask(0);task.RegistrationInfo.Description="IP Guard";
+                dynamic task=service.NewTask(0);task.RegistrationInfo.Description="EgressLatch";
                 task.Principal.UserId=SystemPolicy.Sid;task.Principal.LogonType=3;task.Principal.RunLevel=1;
                 task.Settings.Enabled=true;task.Settings.StartWhenAvailable=true;
                 task.Settings.DisallowStartIfOnBatteries=false;task.Settings.StopIfGoingOnBatteries=false;

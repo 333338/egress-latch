@@ -30,9 +30,9 @@ namespace IpGuard {
                 }
                 bool own;
                 using(Mutex mutex=new Mutex(true,"Global\\"+SystemPolicy.Owner,out own)) {
-                    if(!own) throw new Exception("IP Guard 正在运行，请先从托盘退出。");
+                    if(!own) throw new Exception("EgressLatch 正在运行，请先从托盘退出。");
                     if(args.Length>0 && args[0]=="recover") { SystemPolicy.Recover(); return 0; }
-                    if(args.Length==0 || args[0]!="guard") throw new Exception("请通过 IP Guard 桌面程序启动。");
+                    if(args.Length==0 || args[0]!="guard") throw new Exception("请通过 EgressLatch 桌面程序启动。");
                     Console.WriteLine(Data.Json().Serialize(new { type="hello",version=BuildInfo.Version,protocol=BuildInfo.Protocol,sid=SystemPolicy.Sid })); Console.Out.Flush();
                     string line=Console.ReadLine();
                     var initialize=line==null ? null : Data.Json().Deserialize<System.Collections.Generic.Dictionary<string,object>>(line);
@@ -53,7 +53,7 @@ namespace IpGuard {
             } catch(Exception e) {
                 string error=e.GetBaseException().Message;
                 if(args.Length>0 && args[0]=="guard") { Console.WriteLine(Data.Json().Serialize(new { type="fatal",error=error })); Console.Out.Flush(); }
-                else Win32.MessageBox(IntPtr.Zero,error,"IP Guard",0x10);
+                else Win32.MessageBox(IntPtr.Zero,error,"EgressLatch",0x10);
                 return 1;
             }
         }

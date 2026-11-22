@@ -197,7 +197,7 @@ export class ProxyEnhancement {
         );
       })
     )
-      throw new Error("代理地址指向 IP Guard 自身，请选择上游代理端口");
+      throw new Error("代理地址指向 EgressLatch 自身，请选择上游代理端口");
     this.sourcePort = ["127.0.0.1", "localhost", "::1"].includes(endpoint.host) ? endpoint.port : 0;
     this.reservePorts();
     if (this.networkPolicies.error) throw new Error(this.networkPolicies.error);

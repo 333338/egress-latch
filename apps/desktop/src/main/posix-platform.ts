@@ -191,7 +191,7 @@ export async function posixAutostart(enabled: boolean, executable: string) {
   if (enabled) {
     await writePrivate(
       file,
-      `[Desktop Entry]\nType=Application\nName=IP Guard\n${desktopExec(executable)}\nTerminal=false\nX-GNOME-Autostart-enabled=true\n`,
+      `[Desktop Entry]\nType=Application\nName=EgressLatch\n${desktopExec(executable)}\nTerminal=false\nX-GNOME-Autostart-enabled=true\n`,
     );
   } else
     try {

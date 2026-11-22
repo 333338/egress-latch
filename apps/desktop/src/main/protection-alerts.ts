@@ -64,7 +64,7 @@ export class ProtectionAlerts {
   };
   private show(notice: ProtectionNotice): Notification | undefined {
     if (!Notification.isSupported()) {
-      console.warn("系统通知不可用，防护状态请查看 IP Guard 托盘与日志");
+      console.warn("系统通知不可用，防护状态请查看 EgressLatch 托盘与日志");
       return;
     }
     const names = [...new Set(notice.apps.map(({ name }) => name))].join("、");
@@ -87,7 +87,7 @@ export class ProtectionAlerts {
               ? "主程序仍在运行，相关连接或子进程已阻断。"
               : "受影响的受控会话已停止，请恢复防护后重新启动。";
     const notification = new Notification({
-      title: `IP Guard · ${title}`,
+      title: `EgressLatch · ${title}`,
       body: `${names}\n${status}点击查看。`,
       silent: true,
     });

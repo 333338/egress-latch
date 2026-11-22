@@ -25,4 +25,4 @@ const files = [
 for (const { filename, value } of files)
   writeFileSync(filename, JSON.stringify(value, null, 2) + "\n");
 writeFileSync(contract, source.replace(pattern, `export const nativeVersion = "${version}";`));
-console.log(`IP Guard ${version}`);
+console.log(`EgressLatch ${version}`);

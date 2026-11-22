@@ -186,7 +186,7 @@ export class Guardian extends EventEmitter {
       }
       this.fail(
         this.error ||
-          `守护程序异常退出（${exit}），受保护程序已结束。请重启 IP Guard；详情见 guardian-errors.log。`,
+          `守护程序异常退出（${exit}），受保护程序已结束。请重启 EgressLatch；详情见 guardian-errors.log。`,
       );
     });
   }
@@ -247,7 +247,7 @@ export class Guardian extends EventEmitter {
     const id = crypto.randomUUID();
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        this.fail("守护操作超时，请重启 IP Guard 后检查日志。");
+        this.fail("守护操作超时，请重启 EgressLatch 后检查日志。");
       }, 40000);
       this.pending.set(id, { resolve, reject, timer });
       input.write(`${JSON.stringify({ ...payload, action, id })}\n`, (error) => {

@@ -7,7 +7,12 @@ import { defineConfig } from "vite-plus";
 import { browserExtensionId, nativeVersion } from "@ip-guard/electron";
 
 const root = import.meta.dirname;
+const repository = process.env.GITHUB_REPOSITORY ?? "";
+if (repository && !/^[A-Za-z0-9][A-Za-z0-9-]{0,38}\/[A-Za-z0-9_.-]{1,100}$/.test(repository))
+  throw new Error("Invalid GITHUB_REPOSITORY");
+
 export default defineConfig({
+  define: { "import.meta.env.VITE_RELEASE_REPOSITORY": JSON.stringify(repository) },
   plugins: [
     {
       name: "extension-manifest",

@@ -23,7 +23,7 @@ export const createMainWindow = ({
     height: 840,
     minHeight: 640,
     minWidth: 760,
-    title: "IP Guard",
+    title: "EgressLatch",
     backgroundColor: "#f6f7f8",
     autoHideMenuBar: true,
     show: false,

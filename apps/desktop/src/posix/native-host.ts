@@ -41,7 +41,7 @@ const offline = () => {
     currentIp: "",
     expectedIps: [],
     checkedAt: "",
-    reason: "请运行 IP Guard",
+    reason: "请运行 EgressLatch",
   });
   process.stdin.destroy();
   process.exitCode = 1;

@@ -18,7 +18,7 @@ const RootLayout = () => (
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
-    meta: [{ title: "IP Guard · 公网 IPv4 守卫" }],
+    meta: [{ title: "EgressLatch · 公网 IPv4 守卫" }],
   }),
   component: RootLayout,
 });

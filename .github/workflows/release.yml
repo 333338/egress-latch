@@ -42,11 +42,11 @@ jobs:
           const version=JSON.parse(readFileSync('apps/desktop/package.json','utf8')).version;
           if(!/^\d+\.\d+\.\d+$/.test(version)||process.env.RELEASE_TAG!=='v'+version)throw Error('Release tag must match the desktop version');
           const release=JSON.parse(execFileSync('gh',['release','view',process.env.RELEASE_TAG,'--repo',process.env.GITHUB_REPOSITORY,'--json','assets'],{encoding:'utf8'}));
-          const expected=[`IP-Guard-Setup-${version}.exe`,`IP-Guard-Setup-${version}.exe.blockmap`,`IP-Guard-Browser-${version}.zip`,'latest.yml'];
+          const expected=[`EgressLatch-Setup-${version}.exe`,`EgressLatch-Setup-${version}.exe.blockmap`,`EgressLatch-Browser-${version}.zip`,'latest.yml'];
           const include=[{runner:'windows-latest',platform:'windows',arch:'x64'}];
           // Historical tags predate the POSIX builder and retain their Windows-only release contract.
           if(existsSync('apps/desktop/electron-builder.posix.yml')) {
-            expected.push(`IP-Guard-Linux-Preview-${version}-x86_64.AppImage`,`IP-Guard-Linux-Preview-${version}-amd64.deb`,...['arm64','x64'].flatMap(arch=>['dmg','zip'].map(ext=>`IP-Guard-macOS-Preview-${version}-${arch}.${ext}`)));
+            expected.push(`EgressLatch-Linux-Preview-${version}-x86_64.AppImage`,`EgressLatch-Linux-Preview-${version}-amd64.deb`,...['arm64','x64'].flatMap(arch=>['dmg','zip'].map(ext=>`EgressLatch-macOS-Preview-${version}-${arch}.${ext}`)));
             include.push({runner:'ubuntu-22.04',platform:'linux',arch:'x64'},{runner:'macos-15',platform:'macos',arch:'arm64'},{runner:'macos-15-intel',platform:'macos',arch:'x64'});
           }
           const complete=expected.every(name=>release.assets.some(asset=>asset.name===name&&asset.size>0));
@@ -100,9 +100,9 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/ipguard-home"
           export HOME="$RUNNER_TEMP/ipguard-home"
-          app=$(find apps/desktop/release-posix -maxdepth 2 -name 'IP Guard.app' -type d -print -quit)
+          app=$(find apps/desktop/release-posix -maxdepth 2 -name 'EgressLatch.app' -type d -print -quit)
           test -n "$app"
-          "$app/Contents/MacOS/IP Guard" --posix-smoke &
+          "$app/Contents/MacOS/EgressLatch" --posix-smoke &
           pid=$!
           for i in $(seq 1 40); do
             if ! kill -0 "$pid" 2>/dev/null; then wait "$pid"; exit $?; fi
@@ -121,7 +121,7 @@ jobs:
           import {join} from 'node:path';
           import {execFileSync} from 'node:child_process';
           const windows=process.env.RELEASE_PLATFORM==='windows',folder=windows?'apps/desktop/release':'apps/desktop/release-posix';
-          const files=readdirSync(folder).filter(name=>windows?/^IP-Guard-(?:Setup-.+\.exe(?:\.blockmap)?|Browser-.+\.zip)$|^latest\.yml$/.test(name):/\.(?:AppImage|deb|dmg|zip)$/.test(name));
+          const files=readdirSync(folder).filter(name=>windows?/^EgressLatch-(?:Setup-.+\.exe(?:\.blockmap)?|Browser-.+\.zip)$|^latest\.yml$/.test(name):/\.(?:AppImage|deb|dmg|zip)$/.test(name));
           if(files.length!==(windows?4:2))throw Error('Unexpected release asset inventory: '+files.join(', '));
           execFileSync('gh',['release','upload',process.env.RELEASE_TAG,...files.map(name=>join(folder,name)),'--repo',process.env.GITHUB_REPOSITORY],{stdio:'inherit'});
           NODE

@@ -12,14 +12,14 @@ const root = path.resolve(import.meta.dirname, "../../.."),
     await readFile(path.join(root, "apps/desktop/package.json"), "utf8"),
   ).version;
 const home = path.join(process.env.RUNNER_TEMP, "ipguard-release-smoke"),
-  installed = path.join(home, "IP Guard"),
+  installed = path.join(home, "EgressLatch"),
   local = path.join(home, "local"),
   roaming = path.join(home, "roaming");
 await mkdir(local, { recursive: true });
 await mkdir(roaming, { recursive: true });
 const env = { ...process.env, LOCALAPPDATA: local, APPDATA: roaming };
 execFileSync(
-  path.join(root, "apps/desktop/release", `IP-Guard-Setup-${version}.exe`),
+  path.join(root, "apps/desktop/release", `EgressLatch-Setup-${version}.exe`),
   ["/S", `/D=${installed}`],
   // NSIS requires the final /D path to remain unquoted, including spaces.
   { env, windowsHide: true, windowsVerbatimArguments: true, timeout: 120000, stdio: "inherit" },
@@ -30,7 +30,7 @@ const component = JSON.parse(
   execFileSync(native, ["version"], { encoding: "utf8", windowsHide: true }),
 );
 assert.equal(component.version, version);
-const child = spawn(path.join(installed, "IP Guard.exe"), ["--windows-smoke"], {
+const child = spawn(path.join(installed, "EgressLatch.exe"), ["--windows-smoke"], {
   cwd: root,
   env,
   windowsHide: true,

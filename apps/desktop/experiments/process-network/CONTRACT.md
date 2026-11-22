@@ -2,21 +2,21 @@
 
 以下数值独立取自上游 `fortconf.h`、`fortioctl.h`、`fortconf_valid.c`、`confdata.cpp`。未设置本机例外时保留以下最小配置。原型仅面向 Windows x64，小端序；输入输出都是变长数据，不使用 C# 默认结构布局猜测协议。
 
-| 项目 | 线协议 |
-| --- | --- |
-| VALIDATE | IOCTL `0xD000B400`，载荷 `41 00` |
-| SETCONF | IOCTL `0xD000B408` |
-| FORT_CONF_IO.conf | 偏移 8，前 8 字节为 active periods mask |
-| FORT_CONF.data | 相对 conf 偏移 28，整个载荷偏移 36 |
-| 配置 flags | `0x4039`：boot、启用过滤、过滤回环、过滤局域网、允许非目标程序 |
-| exe_apps_n | 整个载荷偏移 18，UINT16 |
-| 地址组 | 偏移表 8 字节，两个空列表头各 16 字节，共 40 字节；include_all 与空列表位为 `0xD`，不显式放行任何已列地址 |
-| 应用数据 | 24 字节：flags、zone masks、speed IDs、padding、groups、app ID |
-| 应用 flags | `0x4002`：found + apply_child；不设置 blocked，交由末尾拒绝规则处理 |
-| 应用 path | entry 偏移 30，UTF-16LE 字节长度，后附 WCHAR NUL |
-| 应用 rule | 紧跟路径 NUL，没有额外对齐；长度 64 字节 |
-| Rule flags | `0x2061`：enabled、has_filters、terminate、term_blocked |
-| Filter header | `(size << 7) | (type << 3)`；本原型各子过滤器补齐到 4 字节 |
+| 项目              | 线协议                                                                                                    |
+| ----------------- | --------------------------------------------------------------------------------------------------------- |
+| VALIDATE          | IOCTL `0xD000B400`，载荷 `41 00`                                                                          |
+| SETCONF           | IOCTL `0xD000B408`                                                                                        |
+| FORT_CONF_IO.conf | 偏移 8，前 8 字节为 active periods mask                                                                   |
+| FORT_CONF.data    | 相对 conf 偏移 28，整个载荷偏移 36                                                                        |
+| 配置 flags        | `0x4039`：boot、启用过滤、过滤回环、过滤局域网、允许非目标程序                                            |
+| exe_apps_n        | 整个载荷偏移 18，UINT16                                                                                   |
+| 地址组            | 偏移表 8 字节，两个空列表头各 16 字节，共 40 字节；include_all 与空列表位为 `0xD`，不显式放行任何已列地址 |
+| 应用数据          | 24 字节：flags、zone masks、speed IDs、padding、groups、app ID                                            |
+| 应用 flags        | `0x4002`：found + apply_child；不设置 blocked，交由末尾拒绝规则处理                                       |
+| 应用 path         | entry 偏移 30，UTF-16LE 字节长度，后附 WCHAR NUL                                                          |
+| 应用 rule         | 紧跟路径 NUL，没有额外对齐；长度 64 字节                                                                  |
+| Rule flags        | `0x2061`：enabled、has_filters、terminate、term_blocked                                                   |
+| Filter header     | `(size << 7)                                                                                              | (type << 3)`；本原型各子过滤器补齐到 4 字节 |
 
 规则为 IPv4、出站、TCP、远端地址 `127.0.0.1`、配置端口的 AND。命中放行；不命中走 terminating deny。IPv4 与端口数值采用上游的主机整数表示，再以小端写入。
 

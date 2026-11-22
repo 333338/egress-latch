@@ -111,12 +111,13 @@ namespace IpGuard {
                 if(target==null || !target.enabled) throw new Exception("该程序尚未启用防护。");
                 expected=config.settings.expectedIps.ToArray(); if(window!=null) window.Context(target.name,expected);
                 string exe=target.path;
+                bool exitWithWindow=packaged && PackagePolicy.IsClaudeDesktop(exe);
                 if(packaged) { info=PackagePolicy.OpenTarget(target,Argument(args,"-p"),Argument(args,"-tid")); processOwned=true; }
                 using(NamedPipeClientStream pipe=new NamedPipeClientStream(".","IPGuard-"+sid,PipeDirection.InOut,PipeOptions.Asynchronous)) {
                     Action cancel=()=>pipe.Dispose(); if(window!=null) window.CancelRequested+=cancel; else TerminalProcess.BindCancel(cancel);
                     try {
                         if(window!=null) window.Progress(new ProbeProgress("connection","连接守护","running","等待本机启动校验"));
-                        try { pipe.Connect(4000); } catch(TimeoutException) { throw new Exception("请先运行 IP Guard，再启动受保护程序。"); }
+                        try { pipe.Connect(4000); } catch(TimeoutException) { throw new Exception("请先运行 EgressLatch，再启动受保护程序。"); }
                         if(window!=null) window.Progress(new ProbeProgress("connection","连接守护","ok","守护连接已建立"));
                         using(StreamReader reader=new StreamReader(pipe,new UTF8Encoding(false),false,1024,true)) using(StreamWriter writer=new PipeWriter(pipe)) {
                             writer.WriteLine(Data.Json().Serialize(new { id=id,path=exe,package=packaged,pid=info.pid,tid=info.tid,inherit=inherited,modelEvidence=modelEvidence }));
@@ -134,7 +135,7 @@ namespace IpGuard {
                                 if(result.code==FirewallDisabledException.Code) throw new FirewallDisabledException(result.error);
                                 throw new Exception(result.error ?? "启动已阻断。");
                             }
-                            if(result.otherModel) {Console.Error.WriteLine("IP Guard · "+result.scopeReason+" · 正在启动，使用原网络");exe=ClaudeCodeScope.PrepareOtherImage(target);}
+                            if(result.otherModel) {Console.Error.WriteLine("EgressLatch · "+result.scopeReason+" · 正在启动，使用原网络");exe=ClaudeCodeScope.PrepareOtherImage(target);}
                             string jobPrefix=result.commandProtection ? "Global\\IPGuard-"+sid+"-" : "Local\\IPGuard-";
                             if(result.job==null || !result.job.StartsWith(jobPrefix,StringComparison.Ordinal)) throw new Exception("守护许可无效。");
                             EgressPolicy route=result.otherModel ? null : result.enhancementPolicy ?? config.egress;
@@ -160,6 +161,11 @@ namespace IpGuard {
                                 Win32.Check(Win32.DebugSetProcessKillOnExit(true));
                                 if(result.commandProtection) ProcessTreeMetadata.PrepareRoot(info.pid);
                                 Win32.Check(Win32.AssignProcessToJobObject(lease.job,info.process),"无法建立进程树防护");
+                                if(exitWithWindow) {
+                                    bool attached;
+                                    Win32.Check(Win32.IsProcessInJob(info.process,lease.job,out attached),"无法核对 Claude 进程树防护");
+                                    if(!attached) throw new Exception("无法接管 Claude 进程树，请在普通 Windows 桌面运行 EgressLatch 和 Claude。");
+                                }
                                 writer.WriteLine("started");
                                 if(ReadTimed(reader,5000)!="run") throw new Exception("启动许可已撤销。");
                                 lease.Begin(reader); if(window!=null) window.Success(ip,expected);
@@ -167,7 +173,12 @@ namespace IpGuard {
                                 TerminalProcess.MarkStarted();
                                 if(Win32.ResumeThread(info.thread)==UInt32.MaxValue) throw new Exception("恢复目标进程失败。");
                                 launched=true;
-                                try {MonitorProcess(info,lease,result.commandProtection);}
+                                try {
+                                    if(MonitorProcess(info,lease,result.commandProtection,exitWithWindow)) {
+                                        try {writer.WriteLine(Data.Json().Serialize(new {type="desktop-closed"}));} catch(IOException) {}
+                                        return 0;
+                                    }
+                                }
                                 catch(Exception error) {
                                     try {writer.WriteLine(Data.Json().Serialize(new {type="command-blocked",error=error.GetBaseException().Message}));} catch(IOException) {}
                                     throw;
@@ -178,14 +189,19 @@ namespace IpGuard {
                         }
                     } finally { if(window!=null) window.CancelRequested-=cancel; else TerminalProcess.UnbindCancel(); }
                 }
-            } catch(Exception error) { if(window!=null && !launched) window.Block(error.GetBaseException().Message,ip,expected,error.GetBaseException() is FirewallDisabledException); else Console.Error.WriteLine("IP Guard · "+error.GetBaseException().Message); return 1; }
+            } catch(Exception error) { if(window!=null && !launched) window.Block(error.GetBaseException().Message,ip,expected,error.GetBaseException() is FirewallDisabledException); else Console.Error.WriteLine("EgressLatch · "+error.GetBaseException().Message); return 1; }
             finally {
                 if(processOwned) { Win32.TerminateProcess(info.process,1); Win32.CloseHandle(info.thread); Win32.CloseHandle(info.process); }
                 if(window!=null) window.End();
             }
         }
-        static void MonitorProcess(Win32.ProcessInfo info,Lease lease,bool protectChildren) {
-            DebugProcessTree.Run(info,lease.job,()=>!lease.stopped,lease.RequireAlive,protectChildren);
+        static bool MonitorProcess(Win32.ProcessInfo info,Lease lease,bool protectChildren,bool exitWhenWindowsClose) {
+            var lifetime=exitWhenWindowsClose ? new ClaudeDesktopLifetime(info.pid) : null;
+            DebugProcessTree.Run(info,lease.job,()=>!lease.stopped && (lifetime==null ||
+                (Win32.WaitForSingleObject(info.process,0)!=0 && !lifetime.CheckClosed())),lease.RequireAlive,protectChildren);
+            if(lifetime==null || !lifetime.Closed) return false;
+            Win32.Check(Win32.TerminateJobObject(lease.job,0),"无法结束 Claude 后台进程");
+            return true;
         }
     }
 }

@@ -46,7 +46,7 @@ if (result.status === 0 && windows) {
       "-NoProfile",
       "-NonInteractive",
       "-Command",
-      "$ErrorActionPreference='Stop'; Get-ChildItem -LiteralPath $env:IP_GUARD_EXTENSION_DIR | Compress-Archive -DestinationPath $env:IP_GUARD_EXTENSION_ZIP -Force",
+      "$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue'; Get-ChildItem -LiteralPath $env:IP_GUARD_EXTENSION_DIR | Compress-Archive -DestinationPath $env:IP_GUARD_EXTENSION_ZIP -Force",
     ],
     {
       env: {
@@ -55,7 +55,7 @@ if (result.status === 0 && windows) {
         IP_GUARD_EXTENSION_ZIP: path.join(
           root,
           "release",
-          `IP-Guard-Browser-${metadata.version}.zip`,
+          `EgressLatch-Browser-${metadata.version}.zip`,
         ),
       },
       windowsHide: true,

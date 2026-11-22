@@ -58,7 +58,7 @@ namespace IpGuard.ProcessNetwork {
             SystemPolicy.RequireAdmin();
             FortEnvironment platform=ReadPlatform();
             if(!platform.Known) throw new InvalidOperationException("无法确认内存完整性状态，保持系统设置原样。");
-            if(!platform.HvciConfigured && !platform.HvciRunning) throw new InvalidOperationException("内存完整性已关闭，请重新打开 IP Guard 后安装驱动。");
+            if(!platform.HvciConfigured && !platform.HvciRunning) throw new InvalidOperationException("内存完整性已关闭，请重新打开 EgressLatch 后安装驱动。");
             using(RegistryKey machine=RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,RegistryView.Registry64)) {
                 using(RegistryKey policy=machine.OpenSubKey(@"SOFTWARE\Policies\Microsoft\Windows\DeviceGuard"))
                 using(RegistryKey mdm=machine.OpenSubKey(@"SOFTWARE\Microsoft\PolicyManager\current\device\VirtualizationBasedTechnology"))

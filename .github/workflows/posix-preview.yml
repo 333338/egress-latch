@@ -59,9 +59,9 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/ipguard-home"
           export HOME="$RUNNER_TEMP/ipguard-home"
-          app=$(find apps/desktop/release-posix -maxdepth 2 -name 'IP Guard.app' -type d -print -quit)
+          app=$(find apps/desktop/release-posix -maxdepth 2 -name 'EgressLatch.app' -type d -print -quit)
           test -n "$app"
-          "$app/Contents/MacOS/IP Guard" --posix-smoke &
+          "$app/Contents/MacOS/EgressLatch" --posix-smoke &
           pid=$!
           for i in $(seq 1 40); do
             if ! kill -0 "$pid" 2>/dev/null; then wait "$pid"; exit $?; fi
@@ -72,7 +72,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: IP-Guard-${{ matrix.platform }}-${{ matrix.arch }}-preview
+          name: EgressLatch-${{ matrix.platform }}-${{ matrix.arch }}-preview
           path: |
             apps/desktop/release-posix/*.AppImage
             apps/desktop/release-posix/*.deb

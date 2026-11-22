@@ -156,7 +156,7 @@ namespace IpGuard.ProcessNetwork {
             if(!File.Exists(recovery)) throw new FileNotFoundException("独立恢复组件缺失。",recovery);
             dynamic service=Activator.CreateInstance(Type.GetTypeFromProgID("Schedule.Service",true));service.Connect();
             dynamic folder=service.GetFolder(@"\"),task=service.NewTask(0);
-            task.RegistrationInfo.Description="IP Guard command protection automatic recovery";
+            task.RegistrationInfo.Description="EgressLatch command protection automatic recovery";
             task.Principal.UserId="SYSTEM";task.Principal.LogonType=5;task.Principal.RunLevel=1;
             task.Settings.Enabled=true;task.Settings.Hidden=true;task.Settings.StartWhenAvailable=true;task.Settings.DisallowStartIfOnBatteries=false;task.Settings.StopIfGoingOnBatteries=false;task.Settings.ExecutionTimeLimit="PT2M";
             task.Triggers.Create(8);

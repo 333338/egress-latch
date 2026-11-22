@@ -95,7 +95,7 @@ namespace IpGuard.ProcessNetwork {
                 Win32.Check(QueryServiceConfig(service,buffer,required,out required),"无法核对驱动服务配置");
                 var config=(ServiceConfig)Marshal.PtrToStructure(buffer,typeof(ServiceConfig));
                 string image=ServicePath(Marshal.PtrToStringUni(config.binaryPath));
-                if(config.type!=1 || !String.Equals(image,DriverPath,StringComparison.OrdinalIgnoreCase) || (config.start!=3 && config.start!=4)) throw new InvalidDataException("服务与 IP Guard 所有权记录不匹配，保留现有服务。");
+                if(config.type!=1 || !String.Equals(image,DriverPath,StringComparison.OrdinalIgnoreCase) || (config.start!=3 && config.start!=4)) throw new InvalidDataException("服务与 EgressLatch 所有权记录不匹配，保留现有服务。");
                 if(requireDemandStart && config.start!=3) throw new InvalidOperationException("命令防护驱动已禁用，请手动恢复后重新加载。");
                 ServiceStatus status;
                 Win32.Check(QueryServiceStatus(service,out status),"无法核对驱动服务状态");

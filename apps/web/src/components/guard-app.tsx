@@ -596,6 +596,7 @@ export function GuardApp() {
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(Boolean(window.desktop));
   const [failure, setFailure] = useState("");
+  const [protectionError, setProtectionError] = useState<{ id: string; message: string }>();
   const [adding, setAdding] = useState(false);
   const [policyEditing, setPolicyEditing] = useState(false);
   const [strictSetupOpen, setStrictSetupOpen] = useState(false);
@@ -686,6 +687,26 @@ export function GuardApp() {
   const offline = Boolean(bridge && !loading && (!snapshot.online || failure));
   const portable = Boolean(snapshot.platform && snapshot.platform !== "win32");
   const available = Boolean(bridge && snapshot.online && (portable || snapshot.admin) && !failure);
+  const claudeApps = snapshot.apps.filter((target) => isClaudeDesktopPath(target.path));
+  const claudeRunning = claudeApps.some((target) => snapshot.running.includes(target.id));
+  const launchableClaude = claudeApps.find(
+    (target) =>
+      target.enabled && !target.pathIssue && (!target.enhanced || snapshot.enhancementReady),
+  );
+  const claudeSetup = available && locked && !claudeRunning && !launchableClaude;
+  const claudeHint = claudeRunning
+    ? snapshot.ready
+      ? "Claude 已在运行"
+      : "Claude 已在运行，网络已暂停"
+    : !available
+      ? "等待守护程序就绪"
+      : !locked
+        ? "请先在下方锁定允许的公网 IPv4"
+        : !claudeApps.length
+          ? "请添加已安装的 Claude Desktop"
+          : !launchableClaude
+            ? "请查看 Claude 的程序防护状态"
+            : "通过 IPv4 校验后启动，关闭最后一个窗口后退出后台";
   const enabledCount = snapshot.apps.filter((a) => a.enabled && !a.pathIssue).length;
   const startupEnabled =
     snapshot.startup.state === "unknown" ? snapshot.autostart : snapshot.startup.enabled;
@@ -752,6 +773,8 @@ export function GuardApp() {
       ) : (
         <div className="app-list">
           {snapshot.apps.map((target) => {
+            const protectionMessage =
+              protectionError?.id === target.id ? protectionError.message : "";
             const protectedRunning = snapshot.running.includes(target.id);
             const otherRunning = snapshot.otherModelRunning.includes(target.id);
             const running = protectedRunning || otherRunning;
@@ -874,12 +897,13 @@ export function GuardApp() {
                       </select>
                     </label>
                   )}
-                  {(target.pathIssue || actionReason) && (
+                  {(target.pathIssue || protectionMessage || actionReason) && (
                     <div
-                      className={`app-action-reason ${target.pathIssue ? "path-warning" : ""}`}
+                      className={`app-action-reason ${target.pathIssue || protectionMessage ? "path-warning" : ""}`}
                       id={`app-reason-${target.id}`}
+                      role={protectionMessage ? "alert" : undefined}
                     >
-                      {target.pathIssue || actionReason}
+                      {target.pathIssue || protectionMessage || actionReason}
                     </div>
                   )}
                 </div>
@@ -903,9 +927,13 @@ export function GuardApp() {
                       (!target.enabled &&
                         ((!locked && !canUseOtherModel) || Boolean(target.pathIssue)))
                     }
-                    onChange={() =>
-                      void invoke({ action: "protect", id: target.id, enabled: !target.enabled })
-                    }
+                    onChange={() => {
+                      setProtectionError(undefined);
+                      void invoke(
+                        { action: "protect", id: target.id, enabled: !target.enabled },
+                        (message) => setProtectionError({ id: target.id, message }),
+                      );
+                    }}
                   />
                   <button
                     type="button"
@@ -916,7 +944,9 @@ export function GuardApp() {
                         ? "操作处理中"
                         : actionReason || (running ? "停止受保护进程树" : "校验 IP 并启动")
                     }
-                    aria-describedby={actionReason ? `app-reason-${target.id}` : undefined}
+                    aria-describedby={
+                      actionReason || protectionMessage ? `app-reason-${target.id}` : undefined
+                    }
                     onClick={() =>
                       void invoke({ action: running ? "stop" : "start", id: target.id })
                     }
@@ -983,7 +1013,7 @@ export function GuardApp() {
           <span className="brand-icon">
             <ShieldCheck size={23} />
           </span>
-          <span>IP Guard</span>
+          <span>EgressLatch</span>
         </a>
         <nav aria-label="主导航">
           {nav.map(({ id, label, icon: Icon }) => (
@@ -1063,7 +1093,7 @@ export function GuardApp() {
               <span>
                 {formatIPText(
                   failure ||
-                    (offline ? snapshot.reason || "守护程序离线，请重启 IP Guard。" : "") ||
+                    (offline ? snapshot.reason || "守护程序离线，请重启 EgressLatch。" : "") ||
                     (!bridge
                       ? "请打开桌面版以配置启动校验与后台防护。"
                       : "管理启动拦截与防火墙需要管理员权限。"),
@@ -1076,7 +1106,7 @@ export function GuardApp() {
                   disabled={busy}
                   onClick={() => void invoke({ action: "restart" })}
                 >
-                  重启 IP Guard
+                  重启 EgressLatch
                   <ArrowRight size={14} />
                 </button>
               ) : (
@@ -1099,6 +1129,37 @@ export function GuardApp() {
             {page === "coffee" && <CoffeePage ipsVisible={ipsVisible} />}
             {page === "overview" && (
               <>
+                {bridge && !portable && (
+                  <section className="panel">
+                    <div className="panel-heading">
+                      <div>
+                        <h2>
+                          <Monitor size={17} />
+                          Claude 桌面版
+                        </h2>
+                        <p className="app-action-reason">{claudeHint}</p>
+                      </div>
+                      <button
+                        type="button"
+                        className="btn primary"
+                        disabled={busy || !available || !locked || claudeRunning}
+                        onClick={() => {
+                          if (launchableClaude)
+                            void invoke({ action: "start", id: launchableClaude.id });
+                          else if (claudeApps.length) setPage("apps");
+                          else setAdding(true);
+                        }}
+                      >
+                        {!claudeSetup && <Play size={14} />}
+                        {!claudeSetup
+                          ? "检查并打开 Claude"
+                          : claudeApps.length
+                            ? "管理程序防护"
+                            : "添加 Claude"}
+                      </button>
+                    </div>
+                  </section>
+                )}
                 <section className={`network-panel ${snapshot.ready ? "matched" : ""}`}>
                   <div className="network-main">
                     <div className="network-label">
@@ -1209,6 +1270,16 @@ export function GuardApp() {
                       onFetch={fetchIPv4}
                     />
                   </section>
+                )}
+                {!loading && snapshot.apps.length === 0 && (
+                  <div className="notice">
+                    <Shield size={17} />
+                    <span>还没有添加程序</span>
+                    <button type="button" className="text-btn" onClick={() => setPage("apps")}>
+                      受保护程序
+                      <ArrowRight size={14} />
+                    </button>
+                  </div>
                 )}
                 <section className="panel events-panel">
                   <div className="panel-heading">
@@ -1465,6 +1536,7 @@ export function GuardApp() {
             const result = await invoke({ action: "add", app: target });
             if (result?.snapshot) {
               setAdding(false);
+              if (isClaudeDesktopPath(target.path)) setPage("apps");
               toast.success("已添加，开启开关后接管启动");
             }
           }}

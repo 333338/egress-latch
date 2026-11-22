@@ -62,11 +62,11 @@ export class BrowserBridge {
       currentIp,
       expectedIps: value?.settings.expectedIps ?? [],
       checkedAt,
-      reason: "请启动 IP Guard",
+      reason: "请启动 EgressLatch",
     };
     if (!value?.online || this.guardian.error) return base;
     if (!value.rulesLocked)
-      return { ...base, phase: "unlocked", reason: "请在 IP Guard 中锁定允许的 IPv4" };
+      return { ...base, phase: "unlocked", reason: "请在 EgressLatch 中锁定允许的 IPv4" };
     const age = Date.now() - Date.parse(checkedAt);
     if (
       value.settings.expectedIps.includes(currentIp) &&

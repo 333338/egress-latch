@@ -306,10 +306,10 @@ const start = async () => {
       ),
     ),
   );
-  tray.setToolTip("IP Guard · 公网 IPv4 守卫");
+  tray.setToolTip("EgressLatch · 公网 IPv4 守卫");
   tray.setContextMenu(
     Menu.buildFromTemplate([
-      { label: "打开 IP Guard", click: show },
+      { label: "打开 EgressLatch", click: show },
       { type: "separator" },
       {
         label: "退出并结束受保护程序",
@@ -347,7 +347,7 @@ const start = async () => {
           : enhancedRunning && proxyEnhancement.state.error
             ? "增强出口已验证 · 代理来源复核中"
             : "IPv4 匹配";
-    tray?.setToolTip(`IP Guard · ${status}`.slice(0, 120));
+    tray?.setToolTip(`EgressLatch · ${status}`.slice(0, 120));
   });
   if (smoke) {
     try {

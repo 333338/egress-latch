@@ -8,7 +8,7 @@ let state: BrowserState = {
   currentIp: "",
   expectedIps: [],
   checkedAt: "",
-  reason: "正在连接 IP Guard",
+  reason: "正在连接 EgressLatch",
 };
 let port: chrome.runtime.Port | undefined;
 let lastHeartbeat = 0;
@@ -74,13 +74,15 @@ function publish() {
       if (!permit) await blockTabs();
       await chrome.storage.session.set({ state, receivedAt: Date.now() });
       const latest = state.latestExtensionVersion ?? state.appVersion;
-      const update = isNewerExtensionVersion(latest, chrome.runtime.getManifest().version);
+      const update =
+        Boolean(import.meta.env.VITE_RELEASE_REPOSITORY) &&
+        isNewerExtensionVersion(latest, chrome.runtime.getManifest().version);
       await chrome.action.setBadgeText({ text: !permit ? "!" : update ? "↑" : "" });
       await chrome.action.setBadgeBackgroundColor({
         color: !permit || update ? "#a6691a" : "#137e51",
       });
       await chrome.action.setTitle({
-        title: `IP Guard${!permit ? " · 访问已阻断" : ""}${update ? ` · 插件有更新 v${latest}` : ""}`,
+        title: `EgressLatch${!permit ? " · 访问已阻断" : ""}${update ? ` · 插件有更新 v${latest}` : ""}`,
       });
     })
     .catch(async (error: unknown) => {
@@ -106,7 +108,7 @@ function connect() {
     if (port !== next) return;
     const result = browserStateSchema.safeParse(input);
     if (!result.success) {
-      state = offline("守护消息无效，请更新 IP Guard 与扩展");
+      state = offline("守护消息无效，请更新 EgressLatch 与扩展");
       next.disconnect();
       port = undefined;
       reconnect = setTimeout(connect, 3000);
@@ -120,7 +122,9 @@ function connect() {
     const reason = chrome.runtime.lastError?.message;
     if (port !== next) return;
     port = undefined;
-    state = offline(reason ? "请在新版 IP Guard 设置中准备浏览器扩展" : "IP Guard 连接已断开");
+    state = offline(
+      reason ? "请在新版 EgressLatch 设置中准备浏览器扩展" : "EgressLatch 连接已断开",
+    );
     void publish();
     reconnect = setTimeout(connect, 3000);
   });

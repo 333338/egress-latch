@@ -1,5 +1,5 @@
 appId: com.ip-guard.desktop
-productName: IP Guard
+productName: EgressLatch
 asar: true
 npmRebuild: false
 directories:
@@ -15,6 +15,8 @@ extraResources:
     to: browser-extension
   - from: assets
     to: assets
+  - from: dist/release-info.json
+    to: release-info.json
 mac:
   category: public.app-category.utilities
   icon: assets/icon.png
@@ -22,7 +24,7 @@ mac:
   hardenedRuntime: false
   notarize: false
   target: [dmg, zip]
-  artifactName: IP-Guard-macOS-Preview-${version}-${arch}.${ext}
+  artifactName: EgressLatch-macOS-Preview-${version}-${arch}.${ext}
 linux:
   category: Utility
   icon: assets/icon.png
@@ -30,5 +32,5 @@ linux:
   maintainer: chxcodepro
   synopsis: Managed Claude IPv4 proxy gate
   target: [AppImage, deb]
-  artifactName: IP-Guard-Linux-Preview-${version}-${arch}.${ext}
+  artifactName: EgressLatch-Linux-Preview-${version}-${arch}.${ext}
 publish: null

@@ -75,7 +75,7 @@ export function EditAppDialog({
           </div>
           <div className="form-row">
             <label htmlFor="edit-app-args">
-              启动参数 <span className="muted">下次从 IP Guard 启动时生效</span>
+              启动参数 <span className="muted">下次从 EgressLatch 启动时生效</span>
             </label>
             <input
               ref={argsInput}

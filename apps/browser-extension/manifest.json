@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "IP Guard · Claude 防护",
-  "version": "0.15.12",
-  "description": "按 IP Guard 锁定的 Claude AI 出口 IPv4 保护 Claude 网页。",
+  "name": "EgressLatch · Claude 防护",
+  "version": "0.15.13",
+  "description": "按 EgressLatch 锁定的 Claude AI 出口 IPv4 保护 Claude 网页。",
   "minimum_chrome_version": "120",
   "icons": {
     "32": "icon.png"
@@ -16,7 +16,7 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "IP Guard",
+    "default_title": "EgressLatch",
     "default_icon": "icon.png"
   },
   "declarative_net_request": {

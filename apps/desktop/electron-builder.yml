@@ -1,5 +1,5 @@
 appId: com.ip-guard.desktop
-productName: IP Guard
+productName: EgressLatch
 asar: true
 npmRebuild: false
 directories:
@@ -33,4 +33,4 @@ nsis:
   perMachine: true
   allowToChangeInstallationDirectory: true
   include: scripts/installer.nsh
-  artifactName: IP-Guard-Setup-${version}.${ext}
+  artifactName: EgressLatch-Setup-${version}.${ext}

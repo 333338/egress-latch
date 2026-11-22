@@ -6,12 +6,7 @@ import { dialog } from "electron";
 import type { BrowserWindow } from "electron";
 import { z } from "zod";
 
-import {
-  browserExtensionId,
-  extensionVersionSchema,
-  isNewerExtensionVersion,
-  nativeVersion,
-} from "@ip-guard/electron";
+import { browserExtensionId, isNewerExtensionVersion } from "@ip-guard/electron";
 
 const preferencesSchema = z.object({
   extensions: z.object({ settings: z.record(z.string(), z.unknown()).optional() }).optional(),
@@ -38,14 +33,7 @@ export function hasLegacyBrowserGuard(input: unknown) {
   ];
   if (permissions.some((permission) => ["proxy", "privacy", "management"].includes(permission)))
     return true;
-  const version = parsed.manifest?.version;
-  if (!extensionVersionSchema.safeParse(version).success) return false;
-  return (
-    isNewerExtensionVersion("0.12.0", version ?? "") ||
-    // Local control prototypes used higher numbers before the public 0.12.0 release.
-    (isNewerExtensionVersion(version ?? "", nativeVersion) &&
-      isNewerExtensionVersion("0.14.0", version ?? ""))
-  );
+  return isNewerExtensionVersion("0.14.0", parsed.manifest?.version ?? "");
 }
 function missing(error: unknown) {
   return error !== null && typeof error === "object" && "code" in error && error.code === "ENOENT";

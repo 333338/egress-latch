@@ -1,12 +1,12 @@
-# IP Guard
+# EgressLatch
 
-[![Release](https://img.shields.io/github/v/release/chxcodepro/ip-guard)](https://github.com/chxcodepro/ip-guard/releases/latest)
-[![Windows Build](https://github.com/chxcodepro/ip-guard/actions/workflows/release.yml/badge.svg)](https://github.com/chxcodepro/ip-guard/actions/workflows/release.yml)
 ![Platform](https://img.shields.io/badge/Windows-10%20%2F%2011%20x64-0078D4)
 
-面向 Windows 的公网 IPv4 防护工具。锁定允许的出口 IPv4，在受保护会话启动前校验，运行期间持续监测；地址异常时暂停受控应用联网，保留进程。应用防护覆盖 Claude npm、原生 claude.exe 与 Claude Desktop；Chrome / Edge 插件仅保护 claude.ai 网页。
+EgressLatch 是一个面向 Windows 的 Claude 启动门禁和运行监控工具。代理重连、节点切换或网络变化后，它会在受保护的 Claude 会话启动前检查公网 IPv4。校验无法完成、出口地址不匹配或必要的防护条件未满足时，拒绝启动。运行中发现出口异常时暂停受保护会话联网，保留窗口和进程。
 
-**[下载最新版](https://github.com/chxcodepro/ip-guard/releases/latest)** · [快速开始](#快速开始) · [Claude 网页防护](#claude-网页防护) · [开发构建](#开发构建) · [更新日志](CHANGELOG.zh.md) · [问题反馈](https://github.com/chxcodepro/ip-guard/issues)
+该项目基于 [IP Guard v0.15.12](https://github.com/chxcodepro/claude-guard)，采用 [GPL‑3.0](LICENSE)。Claude 的使用资格以 [Anthropic 支持地区政策](https://www.anthropic.com/legal/supported-regions)为准。
+
+**[下载与运行要求](#windows-下载与运行要求)** · [快速开始](#快速开始) · [Claude 网页防护](#claude-网页防护) · [开发构建](#开发构建) · [发布流程](#发布流程)
 
 ## 功能特性
 
@@ -20,25 +20,24 @@
 - **跟随当前网络**：默认沿用现有代理 / TUN 与应用代理环境，锁定出口 IPv4 后直接开启防护。
 - **自动专用路由**：从受支持的本机 Xray / sing-box / Mihomo 核心取得当前节点，为增强入口自动建立强制代理通道，普通应用保留原分流。
 - **程序管理**：编辑名称与启动参数，查看运行状态，确认后停止 Claude 进程树。
+- **Claude Desktop 自动退出**。关闭受保护的 Claude Desktop 窗口后，结束该会话的后台进程。
 - **Claude 网页防护**：Chrome / Edge 插件按锁定 IPv4 放行 Claude 网页，浏览器代理与官方 Claude 插件保持原设置。
-- **网络诊断**：展示 IPv6、网卡、DNS、时区、地区、连通性和风险属性。
+- **网络诊断**：在诊断页查看 IPv6、网卡、DNS、WebRTC / UDP、时区和连通性。这些检测用于排查网络问题，启动门禁以防护状态和公网 IPv4 校验为准。
 - **桌面集成**：浅色 / 深色 / 系统主题、托盘运行、登录自启动和 GitHub Releases 更新。
 
 ## Linux / macOS 开发预览
 
-[Releases 下载](https://github.com/chxcodepro/ip-guard/releases/latest) · [跨平台构建记录](https://github.com/chxcodepro/ip-guard/actions/workflows/release.yml)
+若当前仓库发布了开发预览包，可在 Releases 下载对应平台和架构的文件。
 
-从 Releases 下载对应平台和架构的文件，文件名包含版本号。开发分支的临时包仍可从成功构建的 Artifacts 下载，后者需要登录 GitHub。
-
-| 平台 | 构建包 |
-| --- | --- |
-| Linux x64 | `IP-Guard-Linux-Preview-<版本>-amd64.deb`、`*-x86_64.AppImage` |
-| macOS Apple Silicon | `IP-Guard-macOS-Preview-<版本>-arm64.dmg`、`*.zip` |
-| macOS Intel | `IP-Guard-macOS-Preview-<版本>-x64.dmg`、`*.zip` |
+| 平台                | 构建包                                                            |
+| ------------------- | ----------------------------------------------------------------- |
+| Linux x64           | `EgressLatch-Linux-Preview-<版本>-amd64.deb`、`*-x86_64.AppImage` |
+| macOS Apple Silicon | `EgressLatch-macOS-Preview-<版本>-arm64.dmg`、`*.zip`             |
+| macOS Intel         | `EgressLatch-macOS-Preview-<版本>-x64.dmg`、`*.zip`               |
 
 这批预览提供真实的受管启动与代理门禁：IP 锁定和重试、网络 / 网卡检测、暂停与恢复受管连接、程序和参数管理、登录自启动、托盘与深浅主题，以及 Chrome / Edge 网页防护通信。
 
-1. 安装或解压对应平台包，打开 IP Guard；先使用原来的代理工具和分流设置。
+1. 安装或解压对应平台包，打开 EgressLatch；先使用原来的代理工具和分流设置。
 2. 获取并锁定允许的 IPv4，添加 Claude Code；macOS 还可添加官方 Claude Desktop。
 3. 开启程序的受管启动。CLI 可点击「复制终端启动命令」，粘贴到原终端执行，后面继续追加原有 Claude 参数；从界面启动 CLI 会打开系统终端。
 4. 新会话启动时识别已知 Claude / DeepSeek 等模型。隐藏模型名称的中转可在程序行中手动选择「Claude」或「其他模型」，更改会结束该入口当前的受管会话；切换 API 或会话内的模型后，请重新启动受管会话。
@@ -50,13 +49,13 @@ Linux / macOS 预览包使用手动更新，从 Releases 下载后替换。Linux
 
 ## Windows 下载与运行要求
 
-从 [Releases](https://github.com/chxcodepro/ip-guard/releases/latest) 获取安装文件：
+从当前 EgressLatch 仓库的 GitHub Releases 获取安装文件。
 
-| 文件                          | 用途                                        |
-| ----------------------------- | ------------------------------------------- |
-| `IP-Guard-Setup-<版本>.exe`   | Windows x64 桌面安装包，包含原生守护        |
-| `IP-Guard-Browser-<版本>.zip` | Claude 网页防护扩展，Chrome / Edge 解压加载 |
-| `latest.yml`、`*.blockmap`    | 由软件自动更新功能读取的元数据              |
+| 文件                             | 用途                                        |
+| -------------------------------- | ------------------------------------------- |
+| `EgressLatch-Setup-<版本>.exe`   | Windows x64 桌面安装包，包含原生守护        |
+| `EgressLatch-Browser-<版本>.zip` | Claude 网页防护扩展，Chrome / Edge 解压加载 |
+| `latest.yml`、`*.blockmap`       | 由软件自动更新功能读取的元数据              |
 
 运行环境：
 
@@ -64,8 +63,10 @@ Linux / macOS 预览包使用手动更新，从 Releases 下载后替换。Linux
 - 管理应用防护需要管理员权限。
 - Windows 防火墙的域、专用、公用三个配置文件均需启用。
 
+从 IP Guard 升级时，先关闭受保护程序并从托盘退出旧版。安装器使用原有安装身份和防护配置目录。按旧版 `IP Guard.exe` 路径自设的防火墙规则，升级后需更新为 `EgressLatch.exe` 的实际路径。
+
 > [!WARNING]
-> 安装或更新、取消 IP 锁定、停止进程及退出 IP Guard 会结束相关受保护程序，请先保存工作。
+> 安装或更新、取消 IP 锁定、停止进程及退出 EgressLatch 会结束相关受保护程序，请先保存工作。
 >
 > 安装包当前未配置代码签名，Windows 可能显示未知发布者提示。
 
@@ -73,15 +74,15 @@ Linux / macOS 预览包使用手动更新，从 Releases 下载后替换。Linux
 
 先按原来的方式连接代理工具，保持应用原有代理设置或 TUN，再完成以下操作。可选增强自动识别受支持的本机代理核心，旧手动独立节点只保留已有配置的管理。
 
-1. 安装并打开 IP Guard；若显示普通权限，点击「以管理员身份重启」。
+1. 安装并打开 EgressLatch；若显示普通权限，点击「以管理员身份重启」。
 2. 在「防护设置 → 连接与防护」选择「IPv4 校验来源」，点击「获取当前 IPv4」，或每行填写一个允许地址，核对后点击「锁定」。最多 32 个，命中任意一个即可放行；获取按钮将当前来源返回的地址添加到草稿并去重，来源与允许列表一起锁定。
 3. 关闭目标程序，在「受保护程序」中选择 Claude 预设或浏览 EXE，添加后开启防护开关。
-4. 从 IP Guard、原快捷方式或原终端命令启动程序。
+4. 从 EgressLatch、原快捷方式或原终端命令启动程序。
 5. 按需开启「开机启动」。登录 Windows 后进入托盘；关闭主窗口继续后台防护。
 
 受保护会话启动时显示校验浮窗，展示检测步骤、当次 IPv4 和锁定地址。通过结果保留约 2.2 秒后启动目标；阻断时保留原因及「知道了」按钮。其他模型会话跳过 IPv4 校验弹窗。关闭校验浮窗或按 Esc 取消本次启动。
 
-运行期间网络复核、IP 未命中允许列表或检测失败时，暂停相应程序的联网，保留程序与窗口并自动重试。30 秒内恢复保持静默；持续 30 秒仅发送一次无声系统通知，点击可打开 IP Guard。后续轮次、错误原因变化和关闭通知均沿用本次故障记录；校验通过后静默恢复联网，托盘同步更新。已有回复流可能中断，恢复后由应用重试或手动重新发送。
+运行期间网络复核、IP 未命中允许列表或检测失败时，暂停相应程序的联网，保留程序与窗口并自动重试。30 秒内恢复保持静默；持续 30 秒仅发送一次无声系统通知，点击可打开 EgressLatch。后续轮次、错误原因变化和关闭通知均沿用本次故障记录；校验通过后静默恢复联网，托盘同步更新。已有回复流可能中断，恢复后由应用重试或手动重新发送。
 
 代理来源查询短暂失败时，同一入口、原配置及核心文件保持一致的自有 Xray / sing-box 通道继续使用原出口许可；许可沿用原有 15 秒截止时间，到期即暂停联网，保留核心等待复核。确认来源或配置变化时撤销旧许可并重新建立通道。诊断日志区分来源查询失败、许可过期和专用核心退出，记录核心退出码。
 
@@ -103,7 +104,7 @@ Linux / macOS 预览包使用手动更新，从 Releases 下载后替换。Linux
 
 每次打开添加窗口都会重新定位。已添加路径显示「已添加」；未找到或定位失败时，可手动浏览。预设只填表，防护由用户手动开启。
 
-点击程序行的铅笔按钮，可修改名称与启动参数。保存后当前进程继续运行，参数在下次从 IP Guard 点击启动时生效；从终端启动使用终端输入的参数。
+点击程序行的铅笔按钮，可修改名称与启动参数。保存后当前进程继续运行，参数在下次从 EgressLatch 点击启动时生效；从终端启动使用终端输入的参数。
 
 顶部「停止 Claude 进程树」会结束当前登录用户、当前 Windows 会话中的 Claude CLI、Desktop 及其子进程，覆盖已添加和未添加的实例，执行前会要求确认。
 
@@ -119,13 +120,13 @@ Linux / macOS 预览包使用手动更新，从 Releases 下载后替换。Linux
 
 每个程序行中的「本机 IP 防泄露 · 可选增强」独立于基础开关，默认关闭。开启确认后，软件从本机代理入口定位正在运行的 Xray / sing-box / Mihomo 与当前节点，使用核心副本创建独立 HTTP 通道：国内与国外目标统一送至所选代理节点。原代理的大陆直连规则不会复制进这个通道，普通应用仍用原来的分流；无需全局代理或手动导入节点。
 
-专用路由由 IP Guard 管理。切换节点后自动复核并重建；通道断开、配置不可用或出口异常时关闭受控连接、保留应用进程，恢复后继续检查。最后一个程序关闭增强或解除防护后撤销临时通道。仅复制核心可执行文件，凭据只在内存与核心的私有标准输入中传递，原配置和订阅保持。启动接管程序前，需要现有过滤器和出口校验就绪。现有已开启增强的配置，每次启动桌面时先确认建立专用通道；取消时增强联网保持暂停，基础防护继续。
+专用路由由 EgressLatch 管理。切换节点后自动复核并重建；通道断开、配置不可用或出口异常时关闭受控连接、保留应用进程，恢复后继续检查。最后一个程序关闭增强或解除防护后撤销临时通道。仅复制核心可执行文件，凭据只在内存与核心的私有标准输入中传递，原配置和订阅保持。启动接管程序前，需要现有过滤器和出口校验就绪。现有已开启增强的配置，每次启动桌面时先确认建立专用通道；取消时增强联网保持暂停，基础防护继续。
 
 在「防护设置 → Claude 专用代理」选择自动识别，或指定本机 HTTP / SOCKS5 入口以定位核心。下拉选择即保存；手动地址填好后回车或离开输入框保存，无额外应用按钮和确认窗口。IPv4 允许列表仍需包含专用节点的实际出口。
 
-| 核心 | 当前接入条件 |
-| --- | --- |
-| Xray / sing-box | v2rayN 已知运行目录，或显式使用绝对 JSON 配置路径；配置能唯一确定独立远程节点 |
+| 核心              | 当前接入条件                                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Xray / sing-box   | v2rayN 已知运行目录，或显式使用绝对 JSON 配置路径；配置能唯一确定独立远程节点                                                         |
 | Mihomo（v0.13.0） | 本机独立 EXE、绝对 YAML 配置路径，以及同进程的本机 HTTP 或 Windows 命名管道控制 API；覆盖符合这些条件的 Clash Verge / Clash Meta 核心 |
 
 Mihomo 有多个策略组时，面板出现「Mihomo 代理组」，选择后立即保存；唯一组或全局模式可自动识别。软件只读取该组当前选中的远程节点，保留原组选择、分流与订阅。内联节点和声明了本地缓存路径的普通订阅可用；相对订阅缓存还需原核心显式传入绝对 `-d` 目录。更新原客户端节点后，软件会复核并重建独立通道。
@@ -146,21 +147,21 @@ Mihomo 有多个策略组时，面板出现「Mihomo 代理组」，选择后立
 
 **本地中转的严格出口仍有缺口。** 当前能识别它所声明的模型范围，强制固定出口模式仅支持固定通道可达的远程 API 入口。检测到本地 / 内网 API 与强制固定出口组合时，会明确拒绝新启动；基本 IP 检测模式仍需用户确认中转自身的真实出口。客户端的 `127.0.0.1` 连接无法证明中转服务后续连接的出口。
 
-命令进程树保护使用实验性 Fort 驱动，HVCI 启用时保持关闭。点击「安装驱动」后，可明确选择关闭本机内存完整性；IP Guard 只保存关闭请求，重启并重新确认 HVCI 已关闭后，仍需再次点击安装驱动。组织策略或 UEFI 锁定时保留原设置；Secure Boot 与其他 VBS 功能保持原样。关闭内存完整性会降低系统内核防护，卸载 IP Guard 后需自行在 Windows 安全中心重新开启。该驱动曾在验证中造成全机断网，修复后的真实加载与恢复仍待隔离系统验收。
+命令进程树保护使用实验性 Fort 驱动，HVCI 启用时保持关闭。点击「安装驱动」后，可明确选择关闭本机内存完整性；EgressLatch 只保存关闭请求，重启并重新确认 HVCI 已关闭后，仍需再次点击安装驱动。组织策略或 UEFI 锁定时保留原设置；Secure Boot 与其他 VBS 功能保持原样。关闭内存完整性会降低系统内核防护，卸载 EgressLatch 后需自行在 Windows 安全中心重新开启。该驱动曾在验证中造成全机断网，修复后的真实加载与恢复仍待隔离系统验收。
 
 ### 锁定与阻断规则
 
 「防护设置 → 连接与防护 → IPv4 校验来源」提供以下预设，也可选择「自定义 API」填写 HTTPS 网址。获取按钮查询当前草稿来源；锁定后启动校验与后台轮询使用保存的来源。
 
-| 来源 | API | 返回格式 |
-| --- | --- | --- |
-| Claude AI（默认） | `https://claude.ai/cdn-cgi/trace` | trace |
-| [ipify](https://www.ipify.org/) | `https://api.ipify.org/?format=json` | JSON |
-| IPIP.NET | `https://myip.ipip.net/` | 文本 |
-| icanhazip · IPv4 | `https://ipv4.icanhazip.com/` | 纯 IPv4 |
-| Amazon Check IP | `https://checkip.amazonaws.com/` | 纯 IPv4 |
-| Cloudflare | `https://1.1.1.1/cdn-cgi/trace` | trace |
-| ident.me · IPv4 | `https://v4.ident.me/` | 纯 IPv4 |
+| 来源                            | API                                  | 返回格式 |
+| ------------------------------- | ------------------------------------ | -------- |
+| Claude AI（默认）               | `https://claude.ai/cdn-cgi/trace`    | trace    |
+| [ipify](https://www.ipify.org/) | `https://api.ipify.org/?format=json` | JSON     |
+| IPIP.NET                        | `https://myip.ipip.net/`             | 文本     |
+| icanhazip · IPv4                | `https://ipv4.icanhazip.com/`        | 纯 IPv4  |
+| Amazon Check IP                 | `https://checkip.amazonaws.com/`     | 纯 IPv4  |
+| Cloudflare                      | `https://1.1.1.1/cdn-cgi/trace`      | trace    |
+| ident.me · IPv4                 | `https://v4.ident.me/`               | 纯 IPv4  |
 
 自定义接口支持纯 IPv4、trace 的 `ip=`、IPIP 文本，以及 JSON 的 `ip`、`ipv4`、`query`、`ip_address`、`ip_addr` 字段，也支持放在 `data` 内。同一响应有多个不同 IPv4、只返回 IPv6 或返回普通网页时显示失败；失败只重试当前来源。
 
@@ -188,7 +189,7 @@ Mihomo 有多个策略组时，面板出现「Mihomo 代理组」，选择后立
 
 在「防护设置 → 连接与防护」点击「拦截策略」。顶部显示当前代理门禁、原生过滤状态、作用程序和已确认的本机规则；编辑中的规则会标记「未保存」。代理及原生策略确认后才显示「已生效」。
 
-- 「本机回环默认直连」初始开启：`localhost`、`127.*`、`::1` 及 `.localhost` 的本机连接可使用任意端口，包括 TCP 和 UDP。已有策略升级时保留例外并备份旧文件。连接其他本地代理可能绕开 IP Guard 固定出口。
+- 「本机回环默认直连」初始开启：`localhost`、`127.*`、`::1` 及 `.localhost` 的本机连接可使用任意端口，包括 TCP 和 UDP。已有策略升级时保留例外并备份旧文件。连接其他本地代理可能绕开 EgressLatch 固定出口。
 - 策略表的「本机端口」会创建 `localhost` 规则并聚焦端口。默认回环直连时，它用于阻断指定端口；关闭默认直连后，它用于放行指定端口。每条规则可独立启停、修改或删除，保存后对回环入站与出站生效。
 - 公网目标默认经受控代理；精确主机和端口的公网代理 / 直连 / 阻断例外在受控 HTTP 代理内处理。进程公网直连、UDP 与公网 IPv6 仍受传输过滤约束；显式公网「直连」可能暴露原公网 IP，保存前会确认。
 - 本机默认值或端口例外在过滤器健康时原位更新，保留 Claude 进程；现有受控连接会短暂暂停并重新建立。规则回滚失效时停止受影响的增强会话并报告故障。
@@ -219,11 +220,11 @@ Mihomo 有多个策略组时，面板出现「Mihomo 代理组」，选择后立
 ### 安装与更新
 
 1. 在「防护设置 → Claude 网页防护」点击「准备安装扩展」，注册网页连接并打开扩展目录。
-2. 将扩展文件夹复制到「下载」等可写位置，或把 `IP-Guard-Browser-<版本>.zip` 解压到该位置。Chrome 打开 `chrome://extensions/`，Edge 打开 `edge://extensions/`，开启开发者模式，加载包含 `manifest.json` 的可写目录。
-3. 保持桌面 IP Guard 运行并锁定地址，插件校验通过后直接访问 Claude 网页。页面的「打开 Claude」「返回 Claude」同样直接进入 Claude。
+2. 将扩展文件夹复制到「下载」等可写位置，或把 `EgressLatch-Browser-<版本>.zip` 解压到该位置。Chrome 打开 `chrome://extensions/`，Edge 打开 `edge://extensions/`，开启开发者模式，加载包含 `manifest.json` 的可写目录。
+3. 保持桌面 EgressLatch 运行并锁定地址，插件校验通过后直接访问 Claude 网页。页面的「打开 Claude」「返回 Claude」同样直接进入 Claude。
 4. 桌面显示已安装 / 正在运行及待更新状态；更新后用新版文件覆盖浏览器加载的可写副本，再点击「重新加载」。
 
-**从 0.12.x、0.13.0–0.13.3 升级：先移除旧 IP Guard 扩展，再加载新版。** 这一步释放旧版本持有的浏览器代理和 WebRTC 设置。保留官方 Claude 插件；此前被暂停时，在扩展管理页重新启用。每份已安装旧扩展的资料分别处理，新版启动会提示能确认旧权限或旧版本的标准资料；登记信息缺失时，请按上述步骤手动清理。自定义资料请手动检查。
+**从 0.12.x、0.13.x 升级：先移除旧 IP Guard 扩展，再加载新版。** 这一步释放旧版本持有的浏览器代理和 WebRTC 设置。保留官方 Claude 插件；此前被暂停时，在扩展管理页重新启用。每份已安装旧扩展的资料分别处理，新版启动会提示能确认旧权限或旧版本的标准资料；登记信息缺失时，请按上述步骤手动清理。自定义资料请手动检查。
 
 ### 网页访问判断
 
@@ -253,7 +254,7 @@ Mihomo 有多个策略组时，面板出现「Mihomo 代理组」，选择后立
 
 GitHub 返回 504 等临时错误或连接中断时，检查最多尝试三次并显示当前次数；重试只刷新更新器自己的连接、DNS 与代理状态。最终失败显示中文原因，原始错误保存在应用用户目录的 `logs/updates.log`。检查失败保留已下载版本的安装入口；版本信息未重新取得时标为「上次检测版本」。更新检查不自动下载或安装。
 
-此前安装了 0.13.x / 0.14.0 本地候选版的用户，请手动安装 v0.12.0 一次，随后继续跟随稳定版更新。
+已安装旧版 IP Guard 的用户可以通过当前仓库 Releases 手动安装 EgressLatch。
 
 请使用 Releases 构建版绑定仓库更新源。本地构建显示「GitHub 更新源未配置」时，可安装公开发布版本。升级保留允许地址、锁定状态和程序列表；原生组件按版本隔离并进行握手核对。
 
@@ -312,8 +313,6 @@ GitHub 返回 504 等临时错误或连接中断时，检查最多尝试三次�
 构建环境：Windows x64、Node.js 24.22.1、pnpm 12.15.0，以及 Windows 自带的 .NET Framework 4.x 编译器。
 
 ```powershell
-git clone https://github.com/chxcodepro/ip-guard.git
-cd ip-guard
 npx --yes pnpm@12.15.0 install
 npx --yes pnpm@12.15.0 exec vp run dev
 ```
@@ -344,15 +343,15 @@ scripts/              版本管理工具
 
 ### 发布流程
 
-1. 运行 `pnpm run version:app 0.9.2`，同步应用、原生组件与扩展版本。
-2. 提交并推送代码，在对应提交发布同版本标签的 Release，例如 `v0.9.2`。
-3. 等待 [Build Windows release](https://github.com/chxcodepro/ip-guard/actions/workflows/release.yml) 工作流完成，安装器、网页扩展 ZIP 与更新元数据将自动附加到 Release。
+1. 在 `egress-latch` 公开仓库推送对应的源码提交，保留 `LICENSE` 和上游归属。新版本用 `pnpm run version:app <版本>` 同步应用、原生组件与扩展版本。
+2. 创建指向该提交的 GitHub Release，标签为 `v<版本>`。首次分享建议标为预发布，先由少量用户验证全新安装、最小化、关闭后自动退出和再次启动。
+3. 手动发布时，在同一 Release 附上 Windows 安装包、对应源码 ZIP、SHA-256 校验文件和可选网页扩展。先保持继承的 Release 工作流关闭。启用该工作流后，可让 GitHub Actions 构建并上传资产，更新源将指向当前仓库。
 
-GitHub 构建自动绑定当前仓库更新源。更新记录见 [CHANGELOG.zh.md](CHANGELOG.zh.md)。
+本地打包时，未指定 `GITHUB_REPOSITORY` 的安装包通过 Releases 手动更新。发布文件应只含项目源码与构建产物。防护配置、代理订阅、真实 IP、账号截图和运行日志都保留在本机。上游历史记录见 [CHANGELOG.zh.md](CHANGELOG.zh.md)。
 
 ## 反馈与贡献
 
-欢迎通过 [Issues](https://github.com/chxcodepro/ip-guard/issues) 反馈问题，或提交 Pull Request。
+欢迎通过当前仓库的 Issues 反馈问题，或提交 Pull Request。
 
 反馈时请提供软件版本、Windows 版本、目标程序及安装方式、复现步骤和相关日志。提交前请移除 API 密钥、令牌、个人 IP 等敏感信息。
 

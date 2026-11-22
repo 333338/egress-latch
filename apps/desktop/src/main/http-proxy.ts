@@ -117,7 +117,7 @@ export function acceptHttpProxy(
       const status = error instanceof ProxyRequestError ? error.status : 502;
       replyingError = true;
       const body = Buffer.from(
-        "IP Guard：" +
+        "EgressLatch：" +
           (error instanceof ProxyRequestError
             ? error.message
             : "目标服务暂不可用，请检查本机服务或代理通道。"),

@@ -16,9 +16,9 @@ namespace IpGuard {
         public static void Register(bool refreshOnly=false) {
             if(refreshOnly && !File.Exists(Manifest)) return;
             foreach(string browser in Browsers) using(RegistryKey existing=Registry.CurrentUser.OpenSubKey(browser+Host))
-                if(existing!=null && !String.Equals(existing.GetValue("") as string,Manifest,StringComparison.OrdinalIgnoreCase)) throw new Exception("浏览器连接注册冲突，请检查现有 IP Guard 安装。");
+                if(existing!=null && !String.Equals(existing.GetValue("") as string,Manifest,StringComparison.OrdinalIgnoreCase)) throw new Exception("浏览器连接注册冲突，请检查现有 EgressLatch 安装。");
             Directory.CreateDirectory(Path.GetDirectoryName(Manifest));
-            File.WriteAllText(Manifest,Data.Json().Serialize(new { name=Host,description="IP Guard browser connection",path=SystemPolicy.Exe,type="stdio",allowed_origins=new[] { "chrome-extension://"+BuildInfo.ExtensionId+"/" } }),new UTF8Encoding(false));
+            File.WriteAllText(Manifest,Data.Json().Serialize(new { name=Host,description="EgressLatch browser connection",path=SystemPolicy.Exe,type="stdio",allowed_origins=new[] { "chrome-extension://"+BuildInfo.ExtensionId+"/" } }),new UTF8Encoding(false));
             foreach(string browser in Browsers) using(RegistryKey key=Registry.CurrentUser.CreateSubKey(browser+Host)) key.SetValue("",Manifest);
         }
         public static void Unregister() {
@@ -61,7 +61,7 @@ namespace IpGuard {
                         }
                     }
                 } catch(Exception) {
-                    try { Send(output,Data.Json().Serialize(new { protocol=1,appVersion=BuildInfo.Version,phase="offline",currentIp="",expectedIps=new string[0],expectedIp="",checkedAt="",reason="请运行新版 IP Guard，并在设置中准备浏览器扩展" })); } catch(IOException) { }
+                    try { Send(output,Data.Json().Serialize(new { protocol=1,appVersion=BuildInfo.Version,phase="offline",currentIp="",expectedIps=new string[0],expectedIp="",checkedAt="",reason="请运行新版 EgressLatch，并在设置中准备浏览器扩展" })); } catch(IOException) { }
                     return 1;
                 }
             }

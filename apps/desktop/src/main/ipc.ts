@@ -304,7 +304,7 @@ export const setupIpc = (
       configuringKernel = true;
       try {
         const snapshot = await guardian.request("status");
-        if (!snapshot.admin) throw new Error("请以管理员身份重启 IP Guard");
+        if (!snapshot.admin) throw new Error("请以管理员身份重启 EgressLatch");
         const installing = command.action === "kernel:install";
         const rescuing = command.action === "kernel:rescue";
         if (command.action === "kernel:repair") {
@@ -319,7 +319,7 @@ export const setupIpc = (
             title: "关闭 Windows 内存完整性",
             message: "关闭内存完整性并在重启后继续？",
             detail:
-              "这会降低 Windows 内核防护，卸载 IP Guard 后也会保持关闭。仅修改本机 HVCI 开关；组织策略、UEFI 锁与 Secure Boot 保持原样。当前不会安装或加载驱动。",
+              "这会降低 Windows 内核防护，卸载 EgressLatch 后也会保持关闭。仅修改本机 HVCI 开关；组织策略、UEFI 锁与 Secure Boot 保持原样。当前不会安装或加载驱动。",
             buttons: ["保持开启", "确认关闭"],
             defaultId: 0,
             cancelId: 0,
@@ -332,7 +332,7 @@ export const setupIpc = (
             message: "关闭请求已保存",
             detail: installing
               ? "保存工作并重启 Windows，之后回到命令过滤器安装驱动。"
-              : "保存工作并重启 Windows；IP Guard 启动后会重新检查过滤器。",
+              : "保存工作并重启 Windows；EgressLatch 启动后会重新检查过滤器。",
             buttons: ["知道了"],
           });
           return { snapshot: next };
@@ -350,7 +350,7 @@ export const setupIpc = (
           detail: installing
             ? "实验功能，实机验证尚未完成。此次仅复制文件、注册按需服务和自动恢复任务，不加载驱动。"
             : rescuing
-              ? "受控进程树将结束，未保存内容可能丢失。恢复只清理 IP Guard 持有的驱动与规则。"
+              ? "受控进程树将结束，未保存内容可能丢失。恢复只清理 EgressLatch 持有的驱动与规则。"
               : "实验功能，实机验证尚未完成，曾发生全机断网。建议仅在独立测试机启用。请先保存并关闭受控程序；加载可能影响全机联网，驱动异常有蓝屏风险。HVCI 开启时拒绝加载，系统安全设置保持原样。",
           buttons: ["取消", installing ? "安装驱动" : rescuing ? "执行恢复" : "加载并启用"],
           defaultId: 0,
@@ -432,7 +432,7 @@ export const setupIpc = (
     if (command.action === "unlock") {
       const snapshot = await guardian.request("status");
       if (!snapshot.rulesLocked) return { snapshot };
-      if (!snapshot.admin) throw new Error("请以管理员身份重启 IP Guard");
+      if (!snapshot.admin) throw new Error("请以管理员身份重启 EgressLatch");
       const answer = await dialog.showMessageBox({
         type: "warning",
         title: "取消 IP 锁定",
@@ -556,7 +556,7 @@ export const setupIpc = (
     if ((command.action === "protect" && !command.enabled) || command.action === "remove") {
       const result = await dialog.showMessageBox({
         type: "warning",
-        title: "IP Guard",
+        title: "EgressLatch",
         message: "解除防护后，该程序将恢复普通启动和联网。",
         detail: "将结束对应受控进程树，未保存的内容可能丢失。",
         buttons: ["取消", "继续"],

@@ -159,7 +159,7 @@ export class MihomoResolver {
       if (!Array.isArray(payload)) {
         const declared = z.string().min(1).safeParse(provider.path);
         if (!declared.success || (!path.isAbsolute(declared.data) && !source.home))
-          throw new Error("订阅节点需明确的本地缓存路径；IP Guard 不额外下载订阅。");
+          throw new Error("订阅节点需明确的本地缓存路径；EgressLatch 不额外下载订阅。");
         const file = path.isAbsolute(declared.data)
           ? declared.data
           : path.resolve(source.home ?? "", declared.data);

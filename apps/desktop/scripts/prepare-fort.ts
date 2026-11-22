@@ -46,7 +46,7 @@ const expanded = spawnSync(
     "-NoProfile",
     "-NonInteractive",
     "-Command",
-    "$ErrorActionPreference='Stop'; Expand-Archive -LiteralPath $env:FORT_ARCHIVE -DestinationPath $env:FORT_TOOLS -Force",
+    "$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue'; Expand-Archive -LiteralPath $env:FORT_ARCHIVE -DestinationPath $env:FORT_TOOLS -Force",
   ],
   {
     windowsHide: true,
@@ -78,7 +78,7 @@ await copyFile(source, path.join(output, "Fort-3.20.9-source.zip"));
 await copyFile(path.join(root, "LICENSE"), path.join(output, "COPYING.GPL-3.0.txt"));
 await writeFile(
   path.join(output, "NOTICE.txt"),
-  "Fort Firewall 3.20.9 / driver ABI 65\nCopyright Nodir Temirkhodjaev and contributors. GPL-3.0.\nOriginal, unmodified x64 driver; Microsoft Windows Hardware Compatibility Publisher signature.\nCorresponding source and build files: Fort-3.20.9-source.zip\nUpstream: https://github.com/tnodir/fort/tree/v3.20.9\n\nThis installer places files only. Driver installation and activation require explicit confirmation in IP Guard.\n",
+  "Fort Firewall 3.20.9 / driver ABI 65\nCopyright Nodir Temirkhodjaev and contributors. GPL-3.0.\nOriginal, unmodified x64 driver; Microsoft Windows Hardware Compatibility Publisher signature.\nCorresponding source and build files: Fort-3.20.9-source.zip\nUpstream: https://github.com/tnodir/fort/tree/v3.20.9\n\nThis installer places files only. Driver installation and activation require explicit confirmation in EgressLatch.\n",
 );
 console.log(
   "Prepared original Fort driver and corresponding GPL source; no installer or driver was run.",

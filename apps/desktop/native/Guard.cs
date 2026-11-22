@@ -631,7 +631,7 @@ namespace IpGuard {
                         writer.WriteLine(Data.Json().Serialize(new { type="context", name=target.name, expectedIps=config.settings.expectedIps }));
                         if(!config.rulesLocked && !other) throw new Exception("请先锁定允许的公网 IPv4。");
                         if(PackagePolicy.Find(target.path)!=null) {
-                            if(!request.ContainsKey("package") || !(bool)request["package"]) throw new Exception("请通过 Desktop 原快捷方式或 IP Guard 的启动按钮打开安装包。");
+                            if(!request.ContainsKey("package") || !(bool)request["package"]) throw new Exception("请通过 Desktop 原快捷方式或 EgressLatch 的启动按钮打开安装包。");
                             Win32.ProcessInfo existing=PackagePolicy.OpenTarget(target,Convert.ToUInt32(request["pid"]),Convert.ToUInt32(request["tid"]));
                             Win32.CloseHandle(existing.thread); Win32.CloseHandle(existing.process);
                         }
@@ -677,10 +677,13 @@ namespace IpGuard {
                         Thread.Sleep(400);
                     }
                     if(alive.Wait(1000) && alive.Result!=null && alive.Result.Length<4096 && alive.Result.StartsWith("{",StringComparison.Ordinal)) {
-                        var blocked=Data.Json().Deserialize<Dictionary<string,object>>(alive.Result);
+                        var notification=Data.Json().Deserialize<Dictionary<string,object>>(alive.Result);
+                        object kind;
                         if(!quit && session!=null && !session.stopped && session.epoch==Volatile.Read(ref epoch) &&
-                           blocked.ContainsKey("type") && blocked["type"] as string=="command-blocked") {
-                            runtimeFailure=blocked["error"] as string ?? "受控会话监护失败。";
+                           notification.TryGetValue("type",out kind)) {
+                            if(kind as string=="command-blocked") runtimeFailure=notification["error"] as string ?? "受控会话监护失败。";
+                            else if(kind as string=="desktop-closed" && PackagePolicy.IsClaudeDesktop(target.path))
+                                Log("info",target.name+" · 窗口已关闭，已结束本次启动的后台进程");
                         }
                     }
                 } catch(Exception e) {

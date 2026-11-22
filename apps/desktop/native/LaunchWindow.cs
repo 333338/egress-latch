@@ -56,7 +56,7 @@ namespace IpGuard {
             buttonFont=new Font(textFont.FontFamily,textFont.Size*scale,FontStyle.Regular,GraphicsUnit.Pixel);
             AutoScaleMode=AutoScaleMode.None; ClientSize=new Size((int)(680*scale),(int)(438*scale));
             FormBorderStyle=FormBorderStyle.None; ShowInTaskbar=false; StartPosition=FormStartPosition.CenterScreen; TopMost=true; KeyPreview=true;
-            Text="IP Guard · 启动校验"; BackColor=surface; Opacity=motion ? 0.01 : 1;
+            Text="EgressLatch · 启动校验"; BackColor=surface; Opacity=motion ? 0.01 : 1;
             SetStyle(ControlStyles.AllPaintingInWmPaint|ControlStyles.UserPaint|ControlStyles.OptimizedDoubleBuffer|ControlStyles.ResizeRedraw,true);
             using(GraphicsPath shape=Round(new RectangleF(0,0,ClientSize.Width,ClientSize.Height),18*scale)) Region=new Region(shape);
             ackButton=CreateButton("知道了",Ack,green,surface); ackButton.Visible=false; ackButton.Click+=(sender,args)=>Close();
@@ -69,7 +69,7 @@ namespace IpGuard {
             ipButton=CreateButton("显示 IP",new RectangleF(535,21,86,27),surface,muted); ipButton.AccessibleName="显示 IP 地址";
             ipButton.Click+=(sender,args)=>{ipsVisible=!ipsVisible; ipButton.Text=ipsVisible ? "隐藏 IP" : "显示 IP"; ipButton.AccessibleName=ipsVisible ? "隐藏 IP 地址" : "显示 IP 地址"; AccessibleDescription=Display(description); Invalidate();};
             VisibleChanged+=(sender,args)=>{if(!Visible) {ipsVisible=false; ipButton.Text="显示 IP"; ipButton.AccessibleName="显示 IP 地址"; AccessibleDescription=Display(description);}};
-            AcceptButton=ackButton; AccessibleName="IP Guard 启动校验";
+            AcceptButton=ackButton; AccessibleName="EgressLatch 启动校验";
             timer.Tick+=(sender,args)=>TickScene(); Shown+=(sender,args)=>{clock.Restart(); timer.Start();};
         }
         Button CreateButton(string label,RectangleF rect,Color background,Color foreground) {

@@ -24,7 +24,7 @@ export async function setupPosixBrowser(executable: string, helper: string) {
       : ["google-chrome", "microsoft-edge"];
   const manifest = {
     name: browserHostName,
-    description: "IP Guard browser bridge",
+    description: "EgressLatch browser bridge",
     path: host,
     type: "stdio",
     allowed_origins: [`chrome-extension://${browserExtensionId}/`],
@@ -33,7 +33,7 @@ export async function setupPosixBrowser(executable: string, helper: string) {
     const file = path.join(base, folder, "NativeMessagingHosts", browserHostName + ".json");
     const existing = await readOptionalJson(file);
     if (existing && typeof existing === "object" && Reflect.get(existing, "path") !== host)
-      throw new Error("此浏览器已有不同的 IP Guard 通信入口，请先检查原配置");
+      throw new Error("此浏览器已有不同的 EgressLatch 通信入口，请先检查原配置");
     await writePrivate(file, JSON.stringify(manifest));
   }
 }

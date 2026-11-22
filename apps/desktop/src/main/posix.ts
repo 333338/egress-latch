@@ -128,7 +128,7 @@ async function action(command: Command): Promise<Reply> {
         !(await confirm(
           command.enabled ? "启用受管启动？" : "关闭受管启动并结束会话？",
           command.enabled
-            ? "此开发版保护从 IP Guard 或受管终端命令启动的 Claude，以及经过受管代理的连接。系统级直连与子进程网络增强正在移植。"
+            ? "此开发版保护从 EgressLatch 或受管终端命令启动的 Claude，以及经过受管代理的连接。系统级直连与子进程网络增强正在移植。"
             : "",
         ))
       )
@@ -267,8 +267,7 @@ async function action(command: Command): Promise<Reply> {
       await updates.install();
       return { appUpdate: updates.state };
     case "update:releases":
-      await shell.openExternal("https://github.com/chxcodepro/ip-guard/releases");
-      return {};
+      return { appUpdate: await updates.releases() };
     case "restart":
       app.relaunch();
       app.quit();
@@ -371,10 +370,10 @@ async function start() {
     ? process.resourcesPath
     : path.join(import.meta.dirname, "../..");
   tray = new Tray(nativeImage.createFromPath(path.join(assetRoot, "assets/tray.png")));
-  tray.setToolTip("IP Guard · 受管代理开发版");
+  tray.setToolTip("EgressLatch · 受管代理开发版");
   tray.setContextMenu(
     Menu.buildFromTemplate([
-      { label: "打开 IP Guard", click: show },
+      { label: "打开 EgressLatch", click: show },
       { label: "退出并结束受管会话", click: () => app.quit() },
     ]),
   );
@@ -415,7 +414,7 @@ if (app.requestSingleInstanceLock()) {
     () =>
       void start().catch((error) => {
         dialog.showErrorBox(
-          "IP Guard 启动失败",
+          "EgressLatch 启动失败",
           error instanceof Error ? error.message : "启动失败",
         );
         app.exit(1);

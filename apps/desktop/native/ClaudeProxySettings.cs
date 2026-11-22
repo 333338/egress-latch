@@ -93,8 +93,8 @@ namespace IpGuard {
         public void Dispose() {
             if(file==null) return;
             try {File.Delete(file);file=null;}
-            catch(IOException) {Console.Error.WriteLine("IP Guard · 会话设置清理失败，请在关闭 Claude 后清理 session-settings 目录。");}
-            catch(UnauthorizedAccessException) {Console.Error.WriteLine("IP Guard · 会话设置清理权限不足，请在关闭 Claude 后清理 session-settings 目录。");}
+            catch(IOException) {Console.Error.WriteLine("EgressLatch · 会话设置清理失败，请在关闭 Claude 后清理 session-settings 目录。");}
+            catch(UnauthorizedAccessException) {Console.Error.WriteLine("EgressLatch · 会话设置清理权限不足，请在关闭 Claude 后清理 session-settings 目录。");}
         }
     }
 }

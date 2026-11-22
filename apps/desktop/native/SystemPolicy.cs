@@ -9,7 +9,7 @@ using Microsoft.Win32;
 namespace IpGuard {
     public sealed class FirewallDisabledException : Exception {
         public const string Code = "firewall_disabled";
-        public const string Help = "1. 在管理界面中点击“Windows Defender 防火墙属性”。\n2. 分别打开“域配置文件”“专用配置文件”“公用配置文件”选项卡。\n3. 将各自的“防火墙状态”设为“启用（推荐）”，点击“确定”。\n4. 回到 IP Guard，重新开启程序防护或启动程序。\n\n远程桌面和局域网共享如有需要，请保留相应的入站放行规则。";
+        public const string Help = "1. 在管理界面中点击“Windows Defender 防火墙属性”。\n2. 分别打开“域配置文件”“专用配置文件”“公用配置文件”选项卡。\n3. 将各自的“防火墙状态”设为“启用（推荐）”，点击“确定”。\n4. 回到 EgressLatch，重新开启程序防护或启动程序。\n\n远程桌面和局域网共享如有需要，请保留相应的入站放行规则。";
         public FirewallDisabledException(string message) : base(message) { }
     }
     public static class SystemPolicy {
@@ -24,7 +24,7 @@ namespace IpGuard {
         public static readonly string Exe = Process.GetCurrentProcess().MainModule.FileName;
         const string Ifeo = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options";
         public static bool Admin { get { return new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator); } }
-        public static void RequireAdmin() { if (!Admin) throw new Exception("请以管理员身份运行 IP Guard。"); }
+        public static void RequireAdmin() { if (!Admin) throw new Exception("请以管理员身份运行 EgressLatch。"); }
         static RegistryView[] Views { get { return new[] { RegistryView.Registry64, RegistryView.Registry32 }; } }
         public static void Intercept(Target app,EgressPolicy proxy) {
             RequireAdmin(); Data.Validate(app, true);
@@ -34,7 +34,7 @@ namespace IpGuard {
                 Unintercept(app); PackagePolicy.Enable(app,package,proxy); return;
             }
             string debugger=TerminalProcess.IsConsole(app.path) ? Path.Combine(Path.GetDirectoryName(Exe),"IpGuard.Terminal.exe") : Exe;
-            if(!File.Exists(debugger)) throw new Exception("启动门卫安装不完整，请重新安装 IP Guard。");
+            if(!File.Exists(debugger)) throw new Exception("启动门卫安装不完整，请重新安装 EgressLatch。");
             foreach (RegistryView view in Views) {
                 using (RegistryKey root = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view))
                 using (RegistryKey parent = root.CreateSubKey(Ifeo + "\\" + Path.GetFileName(app.path))) {
