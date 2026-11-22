@@ -68,6 +68,8 @@ import { NetworkPolicyDialog } from "#src/components/network-policy-dialog.tsx";
 import { ProxyEnhancementPanel } from "#src/components/proxy-enhancement-panel.tsx";
 import { UpdatePanel } from "#src/components/update-panel.tsx";
 
+import brandIcon from "../../../desktop/assets/icon.png";
+
 import "#src/guard.css";
 
 const initial: Snapshot = {
@@ -1010,9 +1012,7 @@ export function GuardApp() {
             setPage("overview");
           }}
         >
-          <span className="brand-icon">
-            <ShieldCheck size={23} />
-          </span>
+          <img className="brand-icon" src={brandIcon} alt="" width={36} height={36} />
           <span>EgressLatch</span>
         </a>
         <nav aria-label="主导航">

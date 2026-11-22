@@ -105,11 +105,9 @@ button:active:not(:disabled) {
   text-decoration: none;
 }
 .brand-icon {
-  width: 33px;
+  width: 36px;
   height: 36px;
-  display: grid;
-  place-items: center;
-  color: var(--g-accent);
+  flex: none;
 }
 .guard-sidebar nav {
   display: grid;

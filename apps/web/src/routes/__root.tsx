@@ -4,6 +4,8 @@ import { ThemeProvider } from "next-themes";
 
 import { Toaster } from "@ip-guard/ui/components/sonner";
 
+import brandIcon from "../../../desktop/assets/tray.png";
+
 interface RouterContext {
   queryClient: QueryClient;
 }
@@ -19,6 +21,7 @@ const RootLayout = () => (
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [{ title: "EgressLatch · 公网 IPv4 守卫" }],
+    links: [{ rel: "icon", type: "image/png", href: brandIcon }],
   }),
   component: RootLayout,
 });
